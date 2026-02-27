@@ -1,0 +1,472 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "Synthetic task bank for A/B testing Agent Plan Prompt v2 variants",
+    "usage": "Each task defines a multi-turn coding challenge with measurable completion criteria. Run through prompt variants and compare turn count, waste ratio, and completion rate.",
+    "complexity_tiers": {
+      "simple": "2-5 turns expected optimal, single-concern tasks",
+      "medium": "5-12 turns expected optimal, multi-step with some decisions",
+      "complex": "12-25 turns expected optimal, architectural decisions, multiple files",
+      "adversarial": "Tasks designed to expose specific failure modes"
+    }
+  },
+  "tasks": [
+    {
+      "id": "T-001",
+      "name": "CRUD API endpoint",
+      "tier": "simple",
+      "description": "Build a REST API endpoint for a 'notes' resource with Create, Read (single + list), Update, Delete operations.",
+      "constraints": {
+        "language": "Python",
+        "framework": "FastAPI",
+        "database": "SQLite with SQLAlchemy"
+      },
+      "done_criteria": [
+        "POST /notes creates a note with title and body, returns 201 with created note",
+        "GET /notes returns paginated list with limit/offset",
+        "GET /notes/{id} returns single note or 404",
+        "PUT /notes/{id} updates note or 404",
+        "DELETE /notes/{id} removes note or 404",
+        "All endpoints have proper status codes",
+        "Input validation on title (required, max 200 chars) and body (required)"
+      ],
+      "optimal_turns": 4,
+      "expected_failure_modes": ["scope-creep into auth", "premature optimization"],
+      "evaluation_script": "def evaluate(project_dir): # Check all endpoints exist and return correct status codes"
+    },
+    {
+      "id": "T-002",
+      "name": "Form validation library",
+      "tier": "simple",
+      "description": "Create a JavaScript form validation library that supports required fields, email format, min/max length, and custom validators.",
+      "constraints": {
+        "language": "JavaScript/TypeScript",
+        "no_dependencies": true
+      },
+      "done_criteria": [
+        "validate(schema, data) returns {valid: bool, errors: {field: string[]}}",
+        "Supports: required, email, minLength, maxLength, pattern, custom function",
+        "Chaining: multiple rules per field, all evaluated",
+        "Returns all errors at once, not just first",
+        "TypeScript types exported"
+      ],
+      "optimal_turns": 3,
+      "expected_failure_modes": ["over-engineering the API", "yak-shave on edge cases"],
+      "evaluation_script": "def evaluate(project_dir): # Import and run validation test cases"
+    },
+    {
+      "id": "T-003",
+      "name": "CLI task tracker",
+      "tier": "simple",
+      "description": "Build a command-line task tracker that persists to a JSON file. Commands: add, list, done, remove, stats.",
+      "constraints": {
+        "language": "Python",
+        "library": "argparse or click",
+        "storage": "~/.tasks.json"
+      },
+      "done_criteria": [
+        "task add 'Buy groceries' creates a task with auto-incrementing ID",
+        "task list shows all tasks with status indicators",
+        "task list --done filters to completed",
+        "task done 3 marks task 3 as complete",
+        "task remove 3 deletes task 3",
+        "task stats shows total/done/pending counts",
+        "Handles empty state gracefully",
+        "Data persists between invocations"
+      ],
+      "optimal_turns": 3,
+      "expected_failure_modes": ["overbuilding the data model"],
+      "evaluation_script": "def evaluate(project_dir): # Run CLI commands and verify JSON state"
+    },
+    {
+      "id": "T-004",
+      "name": "Markdown to HTML converter",
+      "tier": "simple",
+      "description": "Write a parser that converts a subset of Markdown to HTML: headings, bold, italic, links, code blocks, unordered lists.",
+      "constraints": {
+        "language": "Python",
+        "no_external_parsers": true,
+        "use_regex_or_manual_parsing": true
+      },
+      "done_criteria": [
+        "# Heading → <h1>Heading</h1> (h1-h6)",
+        "**bold** → <strong>bold</strong>",
+        "*italic* → <em>italic</em>",
+        "[text](url) → <a href='url'>text</a>",
+        "```code``` → <pre><code>code</code></pre>",
+        "- item → <ul><li>item</li></ul>",
+        "Paragraphs separated by blank lines",
+        "Handles nested formatting (**bold *and italic***)"
+      ],
+      "optimal_turns": 5,
+      "expected_failure_modes": ["regex complexity explosion", "missing edge cases"],
+      "evaluation_script": "def evaluate(project_dir): # Convert test markdown files and compare output"
+    },
+    {
+      "id": "T-005",
+      "name": "Rate limiter middleware",
+      "tier": "simple",
+      "description": "Implement a sliding window rate limiter as Express.js middleware. Configurable per route.",
+      "constraints": {
+        "language": "JavaScript",
+        "framework": "Express.js",
+        "storage": "In-memory (no Redis)"
+      },
+      "done_criteria": [
+        "rateLimit({windowMs: 60000, max: 100}) creates middleware",
+        "Returns 429 with Retry-After header when limit exceeded",
+        "Sliding window, not fixed window",
+        "Per-IP tracking",
+        "Configurable key extractor (default: IP)",
+        "Memory cleanup of expired windows",
+        "X-RateLimit-Limit and X-RateLimit-Remaining headers"
+      ],
+      "optimal_turns": 4,
+      "expected_failure_modes": ["fixed window instead of sliding", "memory leak"],
+      "evaluation_script": "def evaluate(project_dir): # Send burst of requests and verify rate limiting behavior"
+    },
+    {
+      "id": "T-006",
+      "name": "JWT auth system",
+      "tier": "medium",
+      "description": "Build a complete JWT authentication system with registration, login, token refresh, and protected routes.",
+      "constraints": {
+        "language": "Python",
+        "framework": "FastAPI",
+        "database": "SQLite",
+        "password_hashing": "bcrypt"
+      },
+      "done_criteria": [
+        "POST /register creates user with hashed password",
+        "POST /login returns access token (15min) + refresh token (7 day)",
+        "POST /refresh returns new access token from valid refresh token",
+        "Protected routes return 401 without valid token",
+        "Token contains user_id and expiry",
+        "Refresh token rotation (old token invalidated)",
+        "Duplicate email returns 409",
+        "Login with wrong password returns 401 (not 500)"
+      ],
+      "optimal_turns": 8,
+      "expected_failure_modes": ["storing plain passwords initially", "missing refresh rotation", "poor error handling"],
+      "evaluation_script": "def evaluate(project_dir): # Full auth flow: register → login → access protected → refresh → verify old token invalid"
+    },
+    {
+      "id": "T-007",
+      "name": "Real-time chat server",
+      "tier": "medium",
+      "description": "Build a WebSocket chat server with rooms, user nicknames, and message history.",
+      "constraints": {
+        "language": "JavaScript",
+        "framework": "Node.js with ws library",
+        "storage": "In-memory with configurable history depth"
+      },
+      "done_criteria": [
+        "Users connect via WebSocket with a nickname",
+        "JOIN room_name joins/creates a room",
+        "MSG content sends to all room members",
+        "LEAVE exits the room",
+        "Join/leave events broadcast to room",
+        "Last 50 messages sent on room join",
+        "Nickname uniqueness enforced per room",
+        "Graceful disconnect handling (broadcast leave)",
+        "Multiple simultaneous rooms supported"
+      ],
+      "optimal_turns": 9,
+      "expected_failure_modes": ["race conditions on join/leave", "memory leaks from disconnected clients"],
+      "evaluation_script": "def evaluate(project_dir): # Connect multiple clients, verify message routing and history"
+    },
+    {
+      "id": "T-008",
+      "name": "Database migration system",
+      "tier": "medium",
+      "description": "Build a lightweight database migration tool that tracks applied migrations and supports up/down operations.",
+      "constraints": {
+        "language": "Python",
+        "database": "SQLite",
+        "no_alembic": true
+      },
+      "done_criteria": [
+        "migrate create 'add_users_table' generates timestamped migration file with up() and down()",
+        "migrate up applies all pending migrations in order",
+        "migrate up --steps 1 applies only the next migration",
+        "migrate down --steps 1 rolls back last migration",
+        "migrate status shows applied vs pending",
+        "Tracks applied migrations in _migrations table",
+        "Transactional: failed migration rolls back",
+        "Prevents running same migration twice"
+      ],
+      "optimal_turns": 7,
+      "expected_failure_modes": ["not handling transaction rollback", "timestamp ordering bugs"],
+      "evaluation_script": "def evaluate(project_dir): # Create migrations, run up/down, verify state"
+    },
+    {
+      "id": "T-009",
+      "name": "File watcher with hot reload",
+      "tier": "medium",
+      "description": "Build a development server that watches files for changes and triggers configurable actions (rebuild, restart, notify).",
+      "constraints": {
+        "language": "Python",
+        "library": "watchdog",
+        "config": "YAML config file"
+      },
+      "done_criteria": [
+        "Watches configured directories recursively",
+        "Debounces rapid changes (configurable, default 500ms)",
+        "Supports file extension filtering",
+        "Executes configured commands on change",
+        "Supports multiple watch targets with different actions",
+        "Graceful shutdown on SIGINT",
+        "Colored terminal output with timestamps",
+        "Config file: watch dirs, extensions, commands, debounce"
+      ],
+      "optimal_turns": 7,
+      "expected_failure_modes": ["missing debounce", "race conditions", "zombie processes"],
+      "evaluation_script": "def evaluate(project_dir): # Modify files and verify actions trigger correctly"
+    },
+    {
+      "id": "T-010",
+      "name": "Caching layer with eviction",
+      "tier": "medium",
+      "description": "Build a generic caching layer supporting TTL, LRU eviction, and cache-aside pattern with configurable backends.",
+      "constraints": {
+        "language": "TypeScript",
+        "backends": ["memory", "file-system"],
+        "interface": "Generic Cache<K, V> interface"
+      },
+      "done_criteria": [
+        "get(key) / set(key, value, ttl?) / delete(key) / clear()",
+        "TTL: expired entries not returned and cleaned up",
+        "LRU: evicts least recently used when maxSize reached",
+        "Cache-aside: getOrSet(key, fetchFn, ttl?) pattern",
+        "Memory backend: Map-based",
+        "File backend: JSON files in configurable directory",
+        "Stats: hits, misses, evictions",
+        "Both backends implement same interface"
+      ],
+      "optimal_turns": 8,
+      "expected_failure_modes": ["LRU ordering bugs", "race conditions in file backend", "TTL not checked on read"],
+      "evaluation_script": "def evaluate(project_dir): # Set values, verify TTL expiry, fill to capacity and verify LRU"
+    },
+    {
+      "id": "T-011",
+      "name": "E-commerce cart system",
+      "tier": "complex",
+      "description": "Build a shopping cart API with products, cart management, pricing rules (bulk discounts, coupons), and checkout flow.",
+      "constraints": {
+        "language": "Python",
+        "framework": "FastAPI",
+        "database": "PostgreSQL (or SQLite for testing)"
+      },
+      "done_criteria": [
+        "Product CRUD with name, price, stock, category",
+        "Cart: add item, remove item, update quantity, clear",
+        "Stock validation on add (can't exceed available)",
+        "Pricing engine: bulk discounts (buy 3+ get 10% off)",
+        "Coupon system: percentage and fixed amount, single use, expiry date",
+        "Cart summary: items, subtotal, discounts, tax, total",
+        "Checkout: validates stock, applies pricing, creates order, decrements stock",
+        "Concurrent checkout handling (two users buying last item)",
+        "Order history per user"
+      ],
+      "optimal_turns": 18,
+      "expected_failure_modes": ["race conditions on stock", "pricing calculation errors", "scope creep into payments"],
+      "evaluation_script": "def evaluate(project_dir): # Full shopping flow: add products → cart → coupon → checkout → verify stock"
+    },
+    {
+      "id": "T-012",
+      "name": "Plugin system architecture",
+      "tier": "complex",
+      "description": "Design and build an extensible plugin system with lifecycle hooks, dependency resolution, and configuration.",
+      "constraints": {
+        "language": "TypeScript",
+        "pattern": "Event-driven with hook points",
+        "plugins": "Loaded from directory at runtime"
+      },
+      "done_criteria": [
+        "Plugin interface: name, version, dependencies, hooks, config schema",
+        "Lifecycle: onLoad, onEnable, onDisable, onUnload",
+        "Hook system: register/emit with priority ordering",
+        "Dependency resolution: load order based on declared dependencies",
+        "Circular dependency detection",
+        "Configuration: per-plugin config with schema validation",
+        "Plugin discovery: scan directory, validate, register",
+        "Hot reload: disable → update → re-enable without full restart",
+        "3 example plugins demonstrating the system"
+      ],
+      "optimal_turns": 20,
+      "expected_failure_modes": ["over-abstraction", "circular deps not caught", "hot reload state corruption"],
+      "evaluation_script": "def evaluate(project_dir): # Load plugins, verify hook execution order, test dep resolution"
+    },
+    {
+      "id": "T-013",
+      "name": "Event sourcing with projections",
+      "tier": "complex",
+      "description": "Build an event sourcing system for a bank account domain with event store, projections, and snapshots.",
+      "constraints": {
+        "language": "Python",
+        "storage": "SQLite event store",
+        "domain": "Bank accounts (open, deposit, withdraw, transfer)"
+      },
+      "done_criteria": [
+        "Event store: append-only with stream_id, version, event_type, data, timestamp",
+        "Commands: OpenAccount, Deposit, Withdraw, Transfer",
+        "Events: AccountOpened, MoneyDeposited, MoneyWithdrawn, TransferInitiated, TransferCompleted",
+        "Aggregate: Account rebuilds from events, enforces invariants (no negative balance)",
+        "Projection: AccountBalance (current balance per account)",
+        "Projection: TransactionHistory (last N events per account)",
+        "Snapshots: periodic snapshots to avoid full replay",
+        "Optimistic concurrency: version conflict detection",
+        "Transfer saga: two-phase across accounts"
+      ],
+      "optimal_turns": 22,
+      "expected_failure_modes": ["broken event ordering", "saga not handling failures", "snapshot/replay mismatch"],
+      "evaluation_script": "def evaluate(project_dir): # Open accounts, do transfers, verify projections match event history"
+    },
+    {
+      "id": "T-014",
+      "name": "GraphQL API with dataloader",
+      "tier": "complex",
+      "description": "Build a GraphQL API for a blog platform with posts, authors, comments, and tags. Solve N+1 with dataloader.",
+      "constraints": {
+        "language": "Python",
+        "framework": "Strawberry GraphQL",
+        "database": "SQLite"
+      },
+      "done_criteria": [
+        "Types: Post, Author, Comment, Tag with relationships",
+        "Queries: posts (paginated), post(id), author(id), search(text)",
+        "Mutations: createPost, updatePost, addComment, addTag",
+        "N+1 solved: DataLoader for author, comments, tags on post queries",
+        "Input validation on mutations",
+        "Error handling: not found, validation errors as GraphQL errors",
+        "Pagination: cursor-based for posts",
+        "Full-text search across post title and body"
+      ],
+      "optimal_turns": 15,
+      "expected_failure_modes": ["N+1 not actually solved", "cursor pagination bugs", "missing error types"],
+      "evaluation_script": "def evaluate(project_dir): # Query with nested fields, verify N+1 is solved via query count"
+    },
+    {
+      "id": "T-015",
+      "name": "CI/CD pipeline config generator",
+      "tier": "complex",
+      "description": "Build a tool that analyzes a project's structure and generates appropriate CI/CD pipeline configurations.",
+      "constraints": {
+        "language": "Python",
+        "output_formats": ["GitHub Actions", "GitLab CI"],
+        "detection": "Auto-detect language, framework, test runner, deployment target"
+      },
+      "done_criteria": [
+        "Detects: Python (pip/poetry), Node.js (npm/yarn/pnpm), Go, Rust",
+        "Detects framework: FastAPI, Express, React, Next.js, etc.",
+        "Detects test runner: pytest, jest, go test, cargo test",
+        "Generates: lint, test, build, deploy stages",
+        "GitHub Actions: .github/workflows/ci.yml",
+        "GitLab CI: .gitlab-ci.yml",
+        "Caching configured for package managers",
+        "Matrix builds for multiple versions",
+        "Deploy stage configurable (Heroku, AWS, Vercel)",
+        "Dry run mode: show what would be generated"
+      ],
+      "optimal_turns": 16,
+      "expected_failure_modes": ["incomplete detection", "broken YAML output", "scope creep into Dockerfile"],
+      "evaluation_script": "def evaluate(project_dir): # Point at sample projects and verify generated configs are valid YAML"
+    },
+    {
+      "id": "T-016",
+      "name": "Ambiguous requirements (adversarial)",
+      "tier": "adversarial",
+      "description": "Build a 'notification system.' No other details given. Tests whether the agent asks for clarification or makes assumptions.",
+      "constraints": {},
+      "done_criteria": [
+        "Agent asks clarifying questions before building",
+        "Or: agent states explicit assumptions and proceeds",
+        "Does NOT build something massive without scoping first"
+      ],
+      "optimal_turns": 2,
+      "expected_failure_modes": ["building a full system without asking", "scope-creep", "analysis paralysis"],
+      "evaluation_notes": "Score based on whether the agent's first response is scoping questions or stated assumptions, NOT on whether it builds something."
+    },
+    {
+      "id": "T-017",
+      "name": "Cascading bug hunt (adversarial)",
+      "tier": "adversarial",
+      "description": "Given a pre-built Express app with 3 related bugs (off-by-one in pagination, missing await in async handler, and stale cache on update), fix all three. The second bug masks the third.",
+      "constraints": {
+        "language": "JavaScript",
+        "framework": "Express.js",
+        "provided_code": true
+      },
+      "done_criteria": [
+        "All 3 bugs identified and fixed",
+        "Pagination returns correct results (not missing first/last item)",
+        "Async handler properly awaited (no unhandled promise)",
+        "Cache invalidated on update (fresh data returned after PUT)",
+        "Each fix explained with root cause"
+      ],
+      "optimal_turns": 5,
+      "expected_failure_modes": ["fixing symptom not cause", "missing the cache bug hidden by async bug", "redo loops"],
+      "starter_code_description": "Express app with /items endpoint, Redis cache layer, and pagination. Contains: (1) items.slice(offset, offset + limit) should be items.slice(offset, offset + limit + 1) off-by-one, (2) missing await on cache.del() in PUT handler, (3) cache TTL not cleared on update."
+    },
+    {
+      "id": "T-018",
+      "name": "Premature optimization trap (adversarial)",
+      "tier": "adversarial",
+      "description": "Build a todo app with 'high performance requirements.' Requirements subtly encourage premature optimization — the agent should build simple first, optimize only if needed.",
+      "constraints": {
+        "language": "Python",
+        "requirements_text": "We need a blazing fast todo app that can handle millions of todos. Use the most efficient data structures. Optimize for read performance. Consider caching at every layer."
+      },
+      "done_criteria": [
+        "Working todo CRUD exists",
+        "Agent did NOT build Redis/caching before basic CRUD works",
+        "Agent did NOT spend >3 turns on optimization before features complete",
+        "If agent optimized early, it self-tagged as scope-creep or yak-shave"
+      ],
+      "optimal_turns": 5,
+      "expected_failure_modes": ["building Redis layer before SQLite works", "3+ turns on indexing strategy", "premature abstraction"],
+      "evaluation_notes": "Anti-test: the WRONG behavior is building the 'fast' version first. Correct behavior: simple CRUD → working → then optimize if needed."
+    },
+    {
+      "id": "T-019",
+      "name": "Mid-stream requirements change (adversarial)",
+      "tier": "adversarial",
+      "description": "Start building a REST API, then after 5 turns, requirements change to GraphQL. Tests adaptation without full restart.",
+      "constraints": {
+        "language": "Python",
+        "initial": "FastAPI REST",
+        "pivot": "Strawberry GraphQL (introduced at turn 5)"
+      },
+      "done_criteria": [
+        "REST API was working by turn 5",
+        "Agent adapted models/logic for GraphQL reuse",
+        "Did NOT restart from scratch",
+        "Data models and business logic were preserved",
+        "Process tagged the pivot turn as course-correct, not redo"
+      ],
+      "optimal_turns": 10,
+      "expected_failure_modes": ["full restart", "not reusing existing models", "panic spiral"],
+      "evaluation_notes": "Inject the pivot at turn 5. Measure: how many turns to recover vs. how many turns wasted rewriting."
+    },
+    {
+      "id": "T-020",
+      "name": "Session recovery (adversarial)",
+      "tier": "adversarial",
+      "description": "Give the agent a PLAN.md and HISTORY.jsonl from a half-completed project (turn 20 of 40). Test how quickly it re-orients and resumes productive work.",
+      "constraints": {
+        "provided_state": true,
+        "project": "Half-built REST API with auth, missing: rate limiting, pagination, error handling"
+      },
+      "done_criteria": [
+        "Agent reads PLAN.md and announces current state within first response",
+        "Agent identifies remaining work from Next Steps",
+        "Agent does NOT re-do completed work",
+        "Agent resumes building from where the project left off",
+        "First productive turn (not planning) is within 2 turns of session start"
+      ],
+      "optimal_turns": 2,
+      "expected_failure_modes": ["rebuilding completed features", "ignoring PLAN.md", "excessive planning before resuming"],
+      "evaluation_notes": "This tests the Session Start protocol and state recovery. The agent should read PLAN.md, announce status, and start building within 1-2 turns."
+    }
+  ]
+}
