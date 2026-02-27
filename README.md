@@ -1,2 +1,2 @@
-# ai-tools
-Public collection of AI development tools and frameworks.
+# 2b
+Private second brain — knowledge docs, project notes, ideas.
