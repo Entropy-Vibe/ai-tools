@@ -10,6 +10,21 @@ Versioning: `MAJOR.MINOR.PATCH`
 
 ---
 
+## v4.3.0 — 2026-03-03
+
+### Changed
+- **`trail_archiving` upgraded to enum** — now accepts `off | github | db | both` (was boolean `off | on`)
+- `github` → archives via `commit_trail` to build-logs repo (previous "on" behavior)
+- `db` → stores via `log_build_trail` to Supabase, queryable via `query_build_trails`
+- `both` → archives to both GitHub and Supabase
+- Phase 5 Ship and Feature Transitions updated to reference both backends
+- Config display shows valid values: `(off | github | db | both)`
+- Config toggle supports enum syntax: `9db`, `9github`, `9both`, `9off`
+- Infrastructure note updated to document both optional integrations
+
+### Added
+- **`query_build_trails` MCP tool** — retrieve stored trail artifacts from Supabase. Filter by project, type, milestone. Supports `latest_per_type` mode for restoring full trail state.
+
 ## v4.2.0 — 2026-03-03
 
 ### Added
